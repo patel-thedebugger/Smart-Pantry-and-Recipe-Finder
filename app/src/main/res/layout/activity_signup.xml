@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="24dp"
-        android:paddingTop="40dp"
+        android:paddingTop="32dp"
         android:paddingEnd="24dp"
         android:paddingBottom="32dp">
 
@@ -37,27 +36,54 @@
             android:textSize="14sp"
             android:textStyle="bold"
             android:letterSpacing="0.12"
-            android:layout_marginBottom="40dp" />
+            android:layout_marginBottom="22dp" />
 
         <!-- Heading -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome Back!"
+            android:text="Create Account"
             android:textColor="#171717"
             android:textSize="30sp"
             android:textStyle="bold"
+            android:fontFamily="sans"
             android:layout_marginBottom="8dp" />
 
         <!-- Description -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign in to manage your pantry, discover recipes, and reduce food waste."
+            android:text="Join thousands cooking smarter, cutting grocery bills, and wasting less food."
             android:textColor="#555555"
             android:textSize="15sp"
             android:lineSpacingExtra="3dp"
-            android:layout_marginBottom="28dp" />
+            android:layout_marginBottom="26dp" />
+
+        <!-- Name Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Full Name"
+            android:textColor="#333333"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="7dp" />
+
+        <!-- Name -->
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:background="@drawable/bg_input"
+            android:hint="Enter your name"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#222222"
+            android:textColorHint="#888888"
+            android:textSize="15sp"
+            android:inputType="textPersonName"
+            android:singleLine="true"
+            android:layout_marginBottom="18dp" />
 
         <!-- Email Label -->
         <TextView
@@ -83,7 +109,7 @@
             android:textSize="15sp"
             android:inputType="textEmailAddress"
             android:singleLine="true"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="18dp" />
 
         <!-- Password Label -->
         <TextView
@@ -103,7 +129,7 @@
             android:hint="Password"
             app:endIconMode="password_toggle"
             app:endIconTint="#287D2F"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
@@ -116,56 +142,87 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Forgot Password -->
+        <!-- Password Requirement -->
         <TextView
-            android:id="@+id/tvForgotPassword"
+            android:id="@+id/tvPasswordRequirement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password must be at least 8 characters with 1 number."
+            android:textColor="#777777"
+            android:textSize="12sp"
+            android:layout_marginBottom="18dp" />
+
+        <!-- Confirm Password Label -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Forgot Password?"
-            android:textColor="#287D2F"
+            android:text="Confirm Password"
+            android:textColor="#333333"
             android:textSize="13sp"
             android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginBottom="28dp" />
+            android:layout_marginBottom="7dp" />
 
-        <!-- Sign In Button -->
+        <!-- Confirm Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirmPasswordLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirm Password"
+            app:endIconMode="password_toggle"
+            app:endIconTint="#287D2F"
+            android:layout_marginBottom="20dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etConfirmPassword"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:textColor="#222222"
+                android:textSize="15sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Create Account Button -->
         <Button
-            android:id="@+id/btnSignIn"
+            android:id="@+id/btnCreateAccount"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Sign In to Pantry  →"
+            android:text="Create Account  →"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
             android:background="@drawable/bg_button"
             android:textAllCaps="false"
             android:elevation="3dp"
-            android:layout_marginBottom="26dp" />
+            android:layout_marginBottom="24dp" />
 
-        <!-- Divider -->
-        <TextView
+        <!-- Login Text -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="New to Smart Pantry?"
-            android:textColor="#777777"
-            android:textSize="14sp"
             android:gravity="center"
-            android:layout_marginBottom="8dp" />
+            android:orientation="horizontal">
 
-        <!-- Sign Up -->
-        <TextView
-            android:id="@+id/tvSignUp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Create an Account"
-            android:textColor="#287D2F"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an account? "
+                android:textColor="#555555"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvSignIn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sign In"
+                android:textColor="#287D2F"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

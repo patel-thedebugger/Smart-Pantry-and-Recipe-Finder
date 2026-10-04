@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "681878096089",
+    "project_id": "sprf-e300f",
+    "storage_bucket": "sprf-e300f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681878096089:android:5843201d8197cdbf23d6c8",
+        "android_client_info": {
+          "package_name": "com.example.srpf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATM0x9P383Xwa6sjruZnSZFcVpfb0rbgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
