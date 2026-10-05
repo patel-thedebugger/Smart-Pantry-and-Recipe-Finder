@@ -124,7 +124,7 @@
             android:layout_gravity="end"
             android:text="Forgot Password?"
             android:textColor="#287D2F"
-            android:textSize="13sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             android:clickable="true"
             android:focusable="true"
