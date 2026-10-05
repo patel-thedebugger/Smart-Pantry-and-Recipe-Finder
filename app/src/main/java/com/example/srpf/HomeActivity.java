@@ -12,6 +12,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import com.google.firebase.firestore.Query;
+import java.util.Date;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -21,6 +25,17 @@ public class HomeActivity extends AppCompatActivity {
     private TextView btnLogout;
     private TextView tvUserName;
     private TextView tvUserGreeting;
+    private Button btnAddIngredient;
+
+    private LinearLayout navHomeContainer;
+    private LinearLayout navPantryContainer;
+    private LinearLayout navRecipeContainer;
+
+    private TextView tvTotalItems;
+    private TextView tvExpiringItems;
+
+    private TextView tvExpiringName;
+    private TextView tvExpiringDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +51,45 @@ public class HomeActivity extends AppCompatActivity {
         tvUserName = findViewById(R.id.tvUserName);
         tvUserGreeting = findViewById(R.id.tvUserGreeting);
         btnLogout = findViewById(R.id.btnLogout);
+        btnAddIngredient = findViewById(R.id.btnAddIngredient);
+
+        navHomeContainer = findViewById(R.id.navHomeContainer);
+        navPantryContainer = findViewById(R.id.navPantryContainer);
+        navRecipeContainer = findViewById(R.id.navRecipeContainer);
+
+        // add ingredient page
+        btnAddIngredient.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    HomeActivity.this,
+                    AddIngredientActivity.class
+            );
+
+            startActivity(intent);
+        });
+
+        navPantryContainer.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    HomeActivity.this,
+                    PantryActivity.class
+            );
+
+            startActivity(intent);
+        });
+
+        tvTotalItems = findViewById(R.id.tvTotalItems);
+        tvExpiringItems = findViewById(R.id.tvExpiringItems);
+
+        tvExpiringName = findViewById(R.id.tvExpiringName);
+        tvExpiringDate = findViewById(R.id.tvExpiringDate);
+
+        loadPantryData();
 
         // Load user's name
         loadUserInformation();
+
+
 
         // Logout button
         btnLogout.setOnClickListener(v -> showLogoutConfirmation());
@@ -207,4 +258,125 @@ public class HomeActivity extends AppCompatActivity {
 
         finish();
     }
+
+    private void loadPantryData() {
+
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+
+        if (user == null) {
+            return;
+        }
+
+        String userId = user.getUid();
+
+        firestore
+                .collection("users")
+                .document(userId)
+                .collection("ingredients")
+                .addSnapshotListener((snapshot, error) -> {
+
+                    if (error != null) {
+
+                        return;
+                    }
+
+                    if (snapshot == null) {
+                        return;
+                    }
+
+                    // -----------------------------------
+                    // TOTAL ITEMS
+                    // -----------------------------------
+
+                    int totalItems = snapshot.size();
+
+                    tvTotalItems.setText(
+                            String.valueOf(totalItems)
+                    );
+
+                    // -----------------------------------
+                    // EXPIRING SOON
+                    // -----------------------------------
+
+                    long currentTime =
+                            System.currentTimeMillis();
+
+                    // 3 days from now
+                    long threeDaysLater =
+                            currentTime
+                                    + (3L * 24 * 60 * 60 * 1000);
+
+                    int expiringCount = 0;
+
+                    String firstExpiringName = null;
+                    Long firstExpiringDate = null;
+
+                    for (com.google.firebase.firestore.DocumentSnapshot document
+                            : snapshot.getDocuments()) {
+
+                        Long expiryDate =
+                                document.getLong("expiryDate");
+
+                        if (expiryDate == null) {
+                            continue;
+                        }
+
+                        // Expiring within next 3 days
+                        if (expiryDate >= currentTime
+                                && expiryDate <= threeDaysLater) {
+
+                            expiringCount++;
+
+                            // Find earliest expiry item
+                            if (firstExpiringDate == null
+                                    || expiryDate < firstExpiringDate) {
+
+                                firstExpiringDate = expiryDate;
+
+                                firstExpiringName =
+                                        document.getString("name");
+                            }
+                        }
+                    }
+
+                    tvExpiringItems.setText(
+                            String.valueOf(expiringCount)
+                    );
+
+                    // -----------------------------------
+                    // EXPIRING CARD
+                    // -----------------------------------
+
+                    if (firstExpiringName != null) {
+
+                        tvExpiringName.setText(
+                                firstExpiringName
+                        );
+
+                        String dateText =
+                                android.text.format.DateFormat
+                                        .format(
+                                                "dd MMM yyyy",
+                                                new Date(firstExpiringDate)
+                                        )
+                                        .toString();
+
+                        tvExpiringDate.setText(
+                                "Expires on " + dateText
+                        );
+
+                    } else {
+
+                        tvExpiringName.setText(
+                                "No items expiring"
+                        );
+
+                        tvExpiringDate.setText(
+                                "Your pantry is looking good!"
+                        );
+                    }
+                });
+    }
+
 }
+

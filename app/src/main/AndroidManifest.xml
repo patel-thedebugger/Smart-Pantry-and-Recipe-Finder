@@ -30,6 +30,12 @@
         <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
+        <activity
+            android:name=".PantryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddIngredientActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
