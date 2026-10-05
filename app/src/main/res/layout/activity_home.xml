@@ -375,35 +375,90 @@
         android:background="#FFFFFF"
         android:elevation="8dp">
 
-        <TextView
-            android:id="@+id/navHome"
+        <LinearLayout
+            android:id="@+id/navHomeContainer"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:orientation="vertical"
             android:gravity="center"
-            android:text="⌂\nHome"
-            android:textColor="#287D2F"
-            android:textSize="12sp" />
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
 
-        <TextView
-            android:id="@+id/navPantry"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="🥫\nPantry"
-            android:textColor="#777777"
-            android:textSize="12sp" />
+            <ImageView
+                android:id="@+id/navHomeIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/focus_home"
+                android:contentDescription="Home Page Button" />
 
-        <TextView
-            android:id="@+id/navRecipes"
+            <TextView
+                android:id="@+id/navHomeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textColor="#287D2F"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navPantryContainer"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:orientation="vertical"
             android:gravity="center"
-            android:text="🍴\nRecipes"
-            android:textColor="#777777"
-            android:textSize="12sp" />
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/navPantryIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/unfocus_pantry"
+                android:contentDescription="Pantry Page Button" />
+
+            <TextView
+                android:id="@+id/navPantryText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pantry"
+                android:textColor="#287D2F"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navRecipeContainer"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/navRecipeIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/unfocus_recipe"
+                android:contentDescription="Recipe Page Button" />
+
+            <TextView
+                android:id="@+id/navRecipeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recipe"
+                android:textColor="#287D2F"
+                android:textSize="12sp" />
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -64,7 +64,8 @@
         <EditText
             android:id="@+id/etName"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="wrap_content"
+            android:minHeight="54dp"
             android:background="@drawable/bg_input"
             android:hint="Enter your name"
             android:paddingStart="16dp"
@@ -73,7 +74,7 @@
             android:textColorHint="#888888"
             android:textSize="15sp"
             android:inputType="textPersonName"
-            android:singleLine="true"
+            android:maxLines="1"
             android:layout_marginBottom="18dp" />
 
         <!-- Email Label -->
