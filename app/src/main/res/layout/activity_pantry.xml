@@ -7,81 +7,241 @@
     android:orientation="vertical"
     android:background="#FAF9F4">
 
-    <ScrollView
+    <!-- ============================================== -->
+    <!-- MAIN CONTENT                                   -->
+    <!-- ============================================== -->
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_weight="1">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
-
-            <!-- Header -->
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="My Pantry"
-                android:textColor="#171717"
-                android:textSize="27sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Manage the ingredients you have"
-                android:textColor="#777777"
-                android:textSize="13sp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="18dp" />
-
-            <!-- Add Ingredient -->
-
-            <Button
-                android:id="@+id/btnAddIngredient"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="+ Add Ingredient"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textAllCaps="false"
-                android:background="@drawable/bg_button" />
-
-            <!-- Ingredients -->
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your Ingredients"
-                android:textColor="#171717"
-                android:textSize="19sp"
-                android:textStyle="bold"
-                android:layout_marginTop="28dp"
-                android:layout_marginBottom="14dp" />
+            android:layout_height="match_parent">
+<!--            android:fillViewport="true">-->
 
             <LinearLayout
-                android:id="@+id/ingredientsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="100dp">
 
-        </LinearLayout>
+                <!-- ================================== -->
+                <!-- SEARCH                              -->
+                <!-- ================================== -->
 
-    </ScrollView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:background="@drawable/bg_input">
 
-    <!-- Bottom Navigation -->
+                    <TextView
+                        android:layout_width="30dp"
+                        android:layout_height="wrap_content"
+                        android:text="⌕"
+                        android:textSize="30sp"
+                        android:textColor="#617060"
+                        android:gravity="center"/>
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:hint="Search ingredients..."
+                        android:textSize="16sp"
+                        android:textColor="#222222"
+                        android:textColorHint="#777777"
+                        android:background="@android:color/transparent"
+                        android:singleLine="true"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"/>
+
+
+                </LinearLayout>
+
+                <!-- ================================== -->
+                <!-- FILTER CHIPS                        -->
+                <!-- ================================== -->
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:layout_marginTop="10dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- ALL -->
+
+                        <LinearLayout
+                            android:id="@+id/chipAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="✓  All"
+                                android:textSize="15sp"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+
+                        <!-- VEGETABLES -->
+
+                        <LinearLayout
+                            android:id="@+id/chipVegetables"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="7dp"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🥦 Vegetables"
+                                android:textSize="15sp"/>
+                        </LinearLayout>
+
+                        <!-- FRUITS -->
+
+                        <LinearLayout
+                            android:id="@+id/chipFruits"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="7dp"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🍎 Fruits"
+                                android:textSize="15sp"/>
+                        </LinearLayout>
+
+                        <!-- DAIRY -->
+
+                        <LinearLayout
+                            android:id="@+id/chipDairy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="7dp"
+                            android:orientation="horizontal"
+                            android:gravity="center"
+                            android:paddingStart="15dp"
+                            android:paddingEnd="15dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🧀 Dairy"
+                                android:textSize="15sp"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </HorizontalScrollView>
+
+                <!-- ================================== -->
+                <!-- SORT ROW                            -->
+                <!-- ================================== -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvSort"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:gravity="center_vertical"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:text="↕  Sort by: Expiring soon"
+                        android:textColor="#287D2F"
+                        android:textSize="14sp"
+                        android:background="@drawable/bg_input"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1"/>
+
+                </LinearLayout>
+
+                <!-- ================================== -->
+                <!-- INGREDIENTS                         -->
+                <!-- ================================== -->
+
+                <LinearLayout
+                    android:id="@+id/ingredientsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="6dp"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <!-- ========================================== -->
+        <!-- FLOATING ADD BUTTON                        -->
+        <!-- ========================================== -->
+
+        <Button
+            android:id="@+id/btnAddIngredient"
+            android:layout_width="wrap_content"
+            android:layout_height="58dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="14dp"
+            android:layout_marginBottom="18dp"
+            android:paddingStart="22dp"
+            android:paddingEnd="22dp"
+            android:text="+  Add Ingredient"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:elevation="8dp"
+            android:background="@drawable/bg_button"/>
+
+    </FrameLayout>
+
+    <!-- ============================================== -->
+    <!-- BOTTOM NAVIGATION                              -->
+    <!-- ============================================== -->
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
+        android:layout_height="70dp"
         android:orientation="horizontal"
         android:gravity="center"
         android:background="#FFFFFF"
-        android:elevation="8dp">
+        android:elevation="10dp">
 
         <!-- HOME -->
 
@@ -97,19 +257,19 @@
 
             <ImageView
                 android:id="@+id/navHomeIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginBottom="4dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginBottom="3dp"
                 android:src="@drawable/unfocus_home"
-                android:contentDescription="Home" />
+                android:contentDescription="Home"/>
 
             <TextView
                 android:id="@+id/navHomeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Home"
-                android:textColor="#777777"
-                android:textSize="12sp" />
+                android:textColor="#333333"
+                android:textSize="12sp"/>
 
         </LinearLayout>
 
@@ -127,11 +287,11 @@
 
             <ImageView
                 android:id="@+id/navPantryIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginBottom="4dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginBottom="3dp"
                 android:src="@drawable/focus_pantry"
-                android:contentDescription="Pantry" />
+                android:contentDescription="Pantry"/>
 
             <TextView
                 android:id="@+id/navPantryText"
@@ -140,11 +300,11 @@
                 android:text="Pantry"
                 android:textColor="#287D2F"
                 android:textSize="12sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
         </LinearLayout>
 
-        <!-- RECIPE -->
+        <!-- RECIPES -->
 
         <LinearLayout
             android:id="@+id/navRecipeContainer"
@@ -158,19 +318,19 @@
 
             <ImageView
                 android:id="@+id/navRecipeIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginBottom="4dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginBottom="3dp"
                 android:src="@drawable/unfocus_recipe"
-                android:contentDescription="Recipe" />
+                android:contentDescription="Recipes"/>
 
             <TextView
                 android:id="@+id/navRecipeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recipe"
-                android:textColor="#777777"
-                android:textSize="12sp" />
+                android:text="Recipes"
+                android:textColor="#333333"
+                android:textSize="12sp"/>
 
         </LinearLayout>
 

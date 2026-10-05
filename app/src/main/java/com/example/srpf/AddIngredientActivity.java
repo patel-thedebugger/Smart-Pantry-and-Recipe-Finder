@@ -29,14 +29,43 @@ public class AddIngredientActivity extends AppCompatActivity {
 
     private EditText etIngredientName;
     private EditText etQuantity;
+
     private Spinner spinnerUnit;
+    private Spinner spinnerCategory;
+
     private TextView tvExpiryDate;
     private Button btnSaveIngredient;
 
     private LinearLayout navHomeContainer;
     private ImageView navHomeIcon;
     private TextView navHomeText;
+
     private long selectedExpiryDate = 0;
+
+    private static final String[] UNITS = {
+            "Select Unit",
+            "Pieces",
+            "Kg",
+            "Gram",
+            "Litres",
+            "Millilitres",
+            "Pack",
+            "Bottle",
+            "Can",
+            "Cup",
+            "Tablespoon",
+            "Teaspoon"
+    };
+
+    private static final String[] CATEGORIES = {
+            "Select Category",
+            "Produce (Fruits & Vegetables)",
+            "Dairy & Alternatives",
+            "Meat, Poultry & Seafood",
+            "Bakery & Grains",
+            "Spices & Baking",
+            "Pantry Staples & Canned Goods"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +77,11 @@ public class AddIngredientActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
 
         initializeViews();
+
         setupUnitSpinner();
+        setupCategorySpinner();
         setupDatePicker();
+        setUpNavigation();
 
         btnSaveIngredient.setOnClickListener(v -> saveIngredient());
     }
@@ -60,36 +92,27 @@ public class AddIngredientActivity extends AppCompatActivity {
         etQuantity = findViewById(R.id.etQuantity);
 
         spinnerUnit = findViewById(R.id.spinnerUnit);
+        spinnerCategory = findViewById(R.id.spinnerCategory);
 
         tvExpiryDate = findViewById(R.id.tvExpiryDate);
 
         btnSaveIngredient = findViewById(R.id.btnSaveIngredient);
+
         navHomeContainer = findViewById(R.id.navHomeContainer);
         navHomeIcon = findViewById(R.id.navHomeIcon);
         navHomeText = findViewById(R.id.navHomeText);
     }
 
-    private void setupUnitSpinner() {
+    // ----------------------------------------------------
+    // UNIT SPINNER
+    // ----------------------------------------------------
 
-        String[] units = {
-                "Select Unit",
-                "Pieces",
-                "Kg",
-                "Gram",
-                "Litres",
-                "Millilitres",
-                "Pack",
-                "Bottle",
-                "Can",
-                "Cup",
-                "Tablespoon",
-                "Teaspoon"
-        };
+    private void setupUnitSpinner() {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
-                units
+                UNITS
         );
 
         adapter.setDropDownViewResource(
@@ -98,6 +121,29 @@ public class AddIngredientActivity extends AppCompatActivity {
 
         spinnerUnit.setAdapter(adapter);
     }
+
+    // ----------------------------------------------------
+    // CATEGORY SPINNER
+    // ----------------------------------------------------
+
+    private void setupCategorySpinner() {
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                CATEGORIES
+        );
+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spinnerCategory.setAdapter(adapter);
+    }
+
+    // ----------------------------------------------------
+    // DATE PICKER
+    // ----------------------------------------------------
 
     private void setupDatePicker() {
 
@@ -112,6 +158,7 @@ public class AddIngredientActivity extends AppCompatActivity {
             DatePickerDialog datePickerDialog =
                     new DatePickerDialog(
                             AddIngredientActivity.this,
+
                             (view, selectedYear, selectedMonth, selectedDay) -> {
 
                                 Calendar selectedDate =
@@ -130,13 +177,20 @@ public class AddIngredientActivity extends AppCompatActivity {
                                         selectedDate.getTimeInMillis();
 
                                 String formattedDate =
-                                        selectedDay + "/" +
-                                                (selectedMonth + 1) + "/" +
-                                                selectedYear;
+                                        String.format(
+                                                "%02d/%02d/%04d",
+                                                selectedDay,
+                                                selectedMonth + 1,
+                                                selectedYear
+                                        );
 
                                 tvExpiryDate.setText(formattedDate);
 
+                                tvExpiryDate.setTextColor(
+                                        0xFF333333
+                                );
                             },
+
                             year,
                             month,
                             day
@@ -144,32 +198,43 @@ public class AddIngredientActivity extends AppCompatActivity {
 
             datePickerDialog
                     .getDatePicker()
-                    .setMinDate(System.currentTimeMillis());
+                    .setMinDate(
+                            System.currentTimeMillis()
+                    );
 
             datePickerDialog.show();
         });
     }
 
+    // ----------------------------------------------------
+    // SAVE INGREDIENT
+    // ----------------------------------------------------
+
     private void saveIngredient() {
 
         String name =
-                etIngredientName.getText()
+                etIngredientName
+                        .getText()
                         .toString()
                         .trim();
 
         String quantityText =
-                etQuantity.getText()
+                etQuantity
+                        .getText()
                         .toString()
                         .trim();
 
         String unit =
-                spinnerUnit.getSelectedItem()
+                spinnerUnit
+                        .getSelectedItem()
                         .toString();
 
-        // -------------------------------
-        // VALIDATION
-        // -------------------------------
+        String category =
+                spinnerCategory
+                        .getSelectedItem()
+                        .toString();
 
+        // Name
         if (name.isEmpty()) {
 
             etIngredientName.setError(
@@ -180,6 +245,7 @@ public class AddIngredientActivity extends AppCompatActivity {
             return;
         }
 
+        // Quantity
         if (quantityText.isEmpty()) {
 
             etQuantity.setError(
@@ -190,6 +256,7 @@ public class AddIngredientActivity extends AppCompatActivity {
             return;
         }
 
+        // Unit
         if (unit.equals("Select Unit")) {
 
             Toast.makeText(
@@ -201,6 +268,19 @@ public class AddIngredientActivity extends AppCompatActivity {
             return;
         }
 
+        // Category
+        if (category.equals("Select Category")) {
+
+            Toast.makeText(
+                    this,
+                    "Please select a category",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        // Expiry
         if (selectedExpiryDate == 0) {
 
             Toast.makeText(
@@ -230,7 +310,8 @@ public class AddIngredientActivity extends AppCompatActivity {
 
         try {
 
-            quantity = Double.parseDouble(quantityText);
+            quantity =
+                    Double.parseDouble(quantityText);
 
         } catch (NumberFormatException e) {
 
@@ -242,37 +323,66 @@ public class AddIngredientActivity extends AppCompatActivity {
             return;
         }
 
-        String userId = currentUser.getUid();
+        if (quantity <= 0) {
 
-        // -------------------------------
-        // CREATE INGREDIENT
-        // -------------------------------
+            etQuantity.setError(
+                    "Quantity must be greater than 0"
+            );
+
+            etQuantity.requestFocus();
+            return;
+        }
+
+        // ------------------------------------------------
+        // CREATE FIRESTORE DOCUMENT
+        // ------------------------------------------------
 
         Map<String, Object> ingredient =
                 new HashMap<>();
 
-        ingredient.put("name", name);
-        ingredient.put("quantity", quantity);
-        ingredient.put("unit", unit);
-        ingredient.put("expiryDate", selectedExpiryDate);
-        ingredient.put("createdAt", System.currentTimeMillis());
+        ingredient.put(
+                "name",
+                name
+        );
 
-        // -------------------------------
-        // DISABLE BUTTON
-        // -------------------------------
+        ingredient.put(
+                "quantity",
+                quantity
+        );
+
+        ingredient.put(
+                "unit",
+                unit
+        );
+
+        ingredient.put(
+                "category",
+                category
+        );
+
+        ingredient.put(
+                "expiryDate",
+                selectedExpiryDate
+        );
+
+        ingredient.put(
+                "createdAt",
+                System.currentTimeMillis()
+        );
 
         btnSaveIngredient.setEnabled(false);
         btnSaveIngredient.setText("Saving...");
 
-        // -------------------------------
-        // SAVE TO FIRESTORE
-        // -------------------------------
+        // ------------------------------------------------
+        // SAVE UNDER CURRENT USER
+        // ------------------------------------------------
 
         firestore
                 .collection("users")
-                .document(userId)
+                .document(currentUser.getUid())
                 .collection("ingredients")
                 .add(ingredient)
+
                 .addOnSuccessListener(documentReference -> {
 
                     Toast.makeText(
@@ -281,12 +391,21 @@ public class AddIngredientActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT
                     ).show();
 
-                    finish();
+                    /*
+                     * Returning to PantryActivity.
+                     *
+                     * PantryActivity has a Firestore
+                     * snapshot listener, so the new
+                     * ingredient will appear automatically.
+                     */
 
+                    finish();
                 })
+
                 .addOnFailureListener(e -> {
 
                     btnSaveIngredient.setEnabled(true);
+
                     btnSaveIngredient.setText(
                             "Save Ingredient"
                     );
@@ -300,8 +419,12 @@ public class AddIngredientActivity extends AppCompatActivity {
                 });
     }
 
-    private void setUpNavigation(){
-        // Home
+    // ----------------------------------------------------
+    // NAVIGATION
+    // ----------------------------------------------------
+
+    private void setUpNavigation() {
+
         navHomeContainer.setOnClickListener(v -> {
 
             Intent intent =

@@ -399,6 +399,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Home"
+                android:textStyle="bold"
                 android:textColor="#287D2F"
                 android:textSize="12sp" />
 
