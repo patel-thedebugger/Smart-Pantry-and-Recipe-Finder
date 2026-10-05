@@ -59,7 +59,8 @@ public class AddIngredientActivity extends AppCompatActivity {
 
     private static final String[] CATEGORIES = {
             "Select Category",
-            "Produce (Fruits & Vegetables)",
+            "Fruits",
+            "Vegetables",
             "Dairy & Alternatives",
             "Meat, Poultry & Seafood",
             "Bakery & Grains",

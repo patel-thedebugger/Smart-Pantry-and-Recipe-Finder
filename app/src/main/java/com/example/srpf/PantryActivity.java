@@ -229,7 +229,7 @@ public class PantryActivity extends AppCompatActivity {
                     ).contains(searchText);
 
             boolean matchesCategory =
-                    matchesCategory(name);
+                    matchesCategory(document, name);
 
             if (matchesSearch && matchesCategory) {
                 filtered.add(document);
@@ -320,12 +320,17 @@ public class PantryActivity extends AppCompatActivity {
     // CATEGORY MATCHING
     // ====================================================
 
-    private boolean matchesCategory(String name) {
+    private boolean matchesCategory(DocumentSnapshot document, String name) {
 
         if (selectedCategory.equals("All")) {
             return true;
         }
+        String saved = document.getString("category");
+        if (saved != null && !saved.isEmpty()) {
+            return saved.equalsIgnoreCase(selectedCategory);
+        }
 
+        // 2) Old items with no category: fall back to name matching
         String value =
                 name.toLowerCase(Locale.getDefault());
 
