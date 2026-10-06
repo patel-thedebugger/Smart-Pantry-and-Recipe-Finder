@@ -181,14 +181,11 @@ public class PantryActivity extends AppCompatActivity {
                     }
 
                     allIngredients.clear();
+                    // Keep ALL ingredients, including expired ones.
+                    // Expired ingredients will be displayed with
+                    // an "Expired" status instead of being deleted.
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                        Long expiry = doc.getLong("expiryDate");
-
-                        if (isExpired(expiry)) {
-                            doc.getReference().delete();   // removes it from Firestore
-                        } else {
-                            allIngredients.add(doc);
-                        }
+                        allIngredients.add(doc);
                     }
 
 
@@ -727,13 +724,17 @@ public class PantryActivity extends AppCompatActivity {
                 10
         );
 
-        edit.setOnClickListener(v ->
-                Toast.makeText(
-                        PantryActivity.this,
-                        "Edit ingredient coming next",
-                        Toast.LENGTH_SHORT
-                ).show()
-        );
+        edit.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    PantryActivity.this,
+                    EditIngredientActivity.class
+            );
+
+            intent.putExtra("ingredientId", documentId);
+
+            startActivity(intent);
+        });
 
 //        actionRow.addView(edit);
 
@@ -1070,13 +1071,23 @@ public class PantryActivity extends AppCompatActivity {
                                     .collection("ingredients")
                                     .document(documentId)
                                     .delete()
-                                    .addOnSuccessListener(unused ->
-                                            Toast.makeText(
-                                                    PantryActivity.this,
-                                                    "Ingredient deleted",
-                                                    Toast.LENGTH_SHORT
-                                            ).show()
-                                    );
+                                    .addOnSuccessListener(unused -> {
+                                        // Cancel all scheduled expiry notifications
+                                        // for this ingredient.
+                                        ExpiryNotificationScheduler
+                                                .cancelExpiryNotifications(
+                                                        PantryActivity.this,
+                                                        documentId
+                                                );
+
+                                        Toast.makeText(
+                                                PantryActivity.this,
+                                                "Ingredient deleted successfully",
+                                                Toast.LENGTH_SHORT
+                                        ).show();
+
+                                        loadIngredients();
+                                    });
                         }
                 )
                 .show();

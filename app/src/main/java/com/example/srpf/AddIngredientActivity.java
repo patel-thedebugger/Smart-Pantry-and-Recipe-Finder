@@ -386,6 +386,15 @@ public class AddIngredientActivity extends AppCompatActivity {
 
                 .addOnSuccessListener(documentReference -> {
 
+                    String ingredientId = documentReference.getId();
+
+                    ExpiryNotificationScheduler.scheduleExpiryNotifications(
+                            AddIngredientActivity.this,
+                            ingredientId,
+                            name,
+                            selectedExpiryDate
+                    );
+
                     Toast.makeText(
                             AddIngredientActivity.this,
                             "Ingredient added successfully!",
