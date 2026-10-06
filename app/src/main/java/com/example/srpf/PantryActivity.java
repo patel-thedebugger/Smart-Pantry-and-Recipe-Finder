@@ -1259,11 +1259,13 @@ public class PantryActivity extends AppCompatActivity {
 
         navRecipeContainer.setOnClickListener(v -> {
 
-            Toast.makeText(
+            Intent intent = new Intent(
                     PantryActivity.this,
-                    "Recipe Finder coming next",
-                    Toast.LENGTH_SHORT
-            ).show();
+                    RecipeActivity.class
+            );
+
+            startActivity(intent);
+            finish();
         });
     }
 

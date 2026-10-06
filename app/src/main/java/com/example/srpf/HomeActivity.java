@@ -78,6 +78,17 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        navRecipeContainer.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    HomeActivity.this,
+                    RecipeActivity.class
+            );
+
+            startActivity(intent);
+            finish();
+        });
+
         tvTotalItems = findViewById(R.id.tvTotalItems);
         tvExpiringItems = findViewById(R.id.tvExpiringItems);
 
