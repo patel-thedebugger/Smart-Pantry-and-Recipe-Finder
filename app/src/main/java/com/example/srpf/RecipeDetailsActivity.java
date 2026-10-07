@@ -1,10 +1,13 @@
 package com.example.srpf;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.content.Intent;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
@@ -12,253 +15,147 @@ import java.util.ArrayList;
 public class RecipeDetailsActivity extends AppCompatActivity {
 
     private TextView tvRecipeName;
+    private TextView tvDescription;
     private TextView tvCalories;
     private TextView tvCookingTime;
     private TextView tvMatchPercentage;
     private TextView tvMissingCount;
 
     private LinearLayout ingredientsContainer;
-
     private Button btnStartCooking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_recipe_details);
 
-        // --------------------------------------------------
-        // Find views
-        // --------------------------------------------------
-
-        tvRecipeName =
-                findViewById(R.id.tvRecipeName);
-
-        tvCalories =
-                findViewById(R.id.tvCalories);
-
-        tvCookingTime =
-                findViewById(R.id.tvCookingTime);
-
-        tvMatchPercentage =
-                findViewById(R.id.tvMatchPercentage);
-
-        tvMissingCount =
-                findViewById(R.id.tvMissingCount);
-
-        ingredientsContainer =
-                findViewById(R.id.ingredientsContainer);
-
-        btnStartCooking =
-                findViewById(R.id.btnStartCooking);
+        tvRecipeName = findViewById(R.id.tvRecipeName);
+        tvDescription = findViewById(R.id.tvDescription);
+        tvCalories = findViewById(R.id.tvCalories);
+        tvCookingTime = findViewById(R.id.tvCookingTime);
+        tvMatchPercentage = findViewById(R.id.tvMatchPercentage);
+        tvMissingCount = findViewById(R.id.tvMissingCount);
+        ingredientsContainer = findViewById(R.id.ingredientsContainer);
+        btnStartCooking = findViewById(R.id.btnStartCooking);
 
         TextView tvBack = findViewById(R.id.tvBack);
-
         tvBack.setOnClickListener(v -> finish());
-        // --------------------------------------------------
-        // Get recipe information
-        // --------------------------------------------------
 
-        String recipeName =
-                getIntent().getStringExtra("recipeName");
+        String recipeId = getIntent().getStringExtra("recipeId");
+        String recipeName = getIntent().getStringExtra("recipeName");
+        String description = getIntent().getStringExtra("description");
 
-        int calories =
-                getIntent().getIntExtra(
-                        "calories",
-                        0
-                );
-
-        int cookingTime =
-                getIntent().getIntExtra(
-                        "cookingTime",
-                        0
-                );
-
-        int matchPercentage =
-                getIntent().getIntExtra(
-                        "matchPercentage",
-                        0
-                );
+        int calories = getIntent().getIntExtra("calories", 0);
+        int cookingTime = getIntent().getIntExtra("cookingTime", 0);
+        int matchPercentage = getIntent().getIntExtra("matchPercentage", 0);
+        int useSoonCount = getIntent().getIntExtra("useSoonCount", 0);
 
         ArrayList<String> availableIngredients =
-                getIntent().getStringArrayListExtra(
-                        "availableIngredients"
-                );
+                getIntent().getStringArrayListExtra("availableIngredients");
 
         ArrayList<String> missingIngredients =
-                getIntent().getStringArrayListExtra(
-                        "missingIngredients"
-                );
+                getIntent().getStringArrayListExtra("missingIngredients");
 
-        // --------------------------------------------------
-        // Set recipe information
-        // --------------------------------------------------
-
-        if (recipeName != null) {
-
+        if (recipeName != null && !recipeName.trim().isEmpty()) {
             tvRecipeName.setText(recipeName);
         }
 
-        tvCalories.setText(
-                "🔥 " + calories + " kcal"
-        );
-
-        if (cookingTime > 0) {
-
-            tvCookingTime.setText(
-                    "⏱ " + cookingTime + " min"
-            );
-
+        if (description != null && !description.trim().isEmpty()) {
+            tvDescription.setText(description);
         } else {
-
-            tvCookingTime.setText(
-                    "⏱ Time unavailable"
-            );
+            tvDescription.setText("Description not available.");
         }
 
-        tvMatchPercentage.setText(
-                matchPercentage
-                        + "% ingredients available"
+        tvCalories.setText(
+                calories > 0
+                        ? "🔥 " + calories + " kcal"
+                        : "🔥 Calories unavailable"
         );
 
-        // --------------------------------------------------
-        // Display available ingredients
-        // --------------------------------------------------
+        tvCookingTime.setText(
+                cookingTime > 0
+                        ? "⏱ " + cookingTime + " min"
+                        : "⏱ Time unavailable"
+        );
+
+        String matchText =
+                matchPercentage + "% ingredients available";
+
+        if (useSoonCount > 0) {
+            matchText +=
+                    "\n⭐ Uses "
+                            + useSoonCount
+                            + " ingredient"
+                            + (useSoonCount > 1 ? "s" : "")
+                            + " expiring soon";
+        }
+
+        tvMatchPercentage.setText(matchText);
 
         if (availableIngredients != null) {
-
-            for (String ingredient :
-                    availableIngredients) {
-
-                addIngredientRow(
-                        ingredient,
-                        true
-                );
+            for (String ingredient : availableIngredients) {
+                addIngredientRow(ingredient, true);
             }
         }
-
-        // --------------------------------------------------
-        // Display missing ingredients
-        // --------------------------------------------------
 
         int missingCount = 0;
 
         if (missingIngredients != null) {
+            missingCount = missingIngredients.size();
 
-            missingCount =
-                    missingIngredients.size();
-
-            for (String ingredient :
-                    missingIngredients) {
-
-                addIngredientRow(
-                        ingredient,
-                        false
-                );
+            for (String ingredient : missingIngredients) {
+                addIngredientRow(ingredient, false);
             }
         }
 
         tvMissingCount.setText(
-                "Missing Ingredients: "
-                        + missingCount
+                "Missing Ingredients: " + missingCount
         );
 
-        // --------------------------------------------------
-        // Start Cooking
-        // --------------------------------------------------
-
         btnStartCooking.setOnClickListener(v -> {
+            if (recipeId == null || recipeId.trim().isEmpty()) {
+                return;
+            }
 
-            String recipeId =
-                    getIntent().getStringExtra(
-                            "recipeId"
-                    );
-
-            Intent intent =
-                    new Intent(
-                            RecipeDetailsActivity.this,
-                            CookingActivity.class
-                    );
-
-            intent.putExtra(
-                    "recipeId",
-                    recipeId
+            Intent intent = new Intent(
+                    RecipeDetailsActivity.this,
+                    CookingActivity.class
             );
 
-            intent.putExtra(
-                    "recipeName",
-                    recipeName
-            );
-
-            intent.putExtra(
-                    "calories",
-                    calories
-            );
-
-            intent.putExtra(
-                    "cookingTime",
-                    cookingTime
-            );
+            intent.putExtra("recipeId", recipeId);
+            intent.putExtra("recipeName", recipeName);
+            intent.putExtra("calories", calories);
+            intent.putExtra("cookingTime", cookingTime);
 
             startActivity(intent);
         });
     }
 
-    // ------------------------------------------------------
-    // Add ingredient row
-    // ------------------------------------------------------
-
     private void addIngredientRow(
             String ingredient,
             boolean available
     ) {
-
-        TextView textView =
-                new TextView(this);
-
-        String prefix;
-
-        if (available) {
-
-            prefix = "✓ ";
-
-        } else {
-
-            prefix = "✗ ";
+        if (ingredient == null || ingredient.trim().isEmpty()) {
+            return;
         }
 
-        textView.setText(
-                prefix + ingredient
+        TextView row = new TextView(this);
+
+        row.setText(
+                (available ? "✓  " : "✕  ")
+                        + ingredient
         );
 
-        textView.setTextSize(16);
-
-        textView.setPadding(
-                0,
-                8,
-                0,
-                8
+        row.setTextSize(15);
+        row.setTextColor(
+                available
+                        ? 0xFF2E7D32
+                        : 0xFFD32F2F
         );
 
-        if (available) {
+        row.setPadding(12, 10, 12, 10);
+        row.setGravity(Gravity.CENTER_VERTICAL);
 
-            textView.setTextColor(
-                    getResources().getColor(
-                            android.R.color.holo_green_dark
-                    )
-            );
-
-        } else {
-
-            textView.setTextColor(
-                    getResources().getColor(
-                            android.R.color.holo_red_dark
-                    )
-            );
-        }
-
-        ingredientsContainer.addView(
-                textView
-        );
+        ingredientsContainer.addView(row);
     }
 }

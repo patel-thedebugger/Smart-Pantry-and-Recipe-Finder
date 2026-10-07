@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-
     android:layout_marginStart="4dp"
     android:layout_marginEnd="4dp"
     android:layout_marginBottom="16dp"
-
     app:cardBackgroundColor="#FFFFFF"
     app:cardCornerRadius="18dp"
     app:cardElevation="5dp"
@@ -18,35 +16,29 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:orientation="vertical"
         android:padding="18dp"
-
         android:background="#FFFFFF">
 
-        <!-- Recipe Name -->
         <TextView
             android:id="@+id/tvRecipeName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:text="Palak Rice"
             android:textColor="#1F2937"
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- Match Percentage -->
         <TextView
             android:id="@+id/tvMatchPercentage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:layout_marginTop="8dp"
-
             android:text="40% ingredients available"
             android:textColor="#2E7D32"
             android:textSize="14sp"
             android:textStyle="bold" />
+
         <TextView
             android:id="@+id/tvUseSoon"
             android:layout_width="wrap_content"
@@ -58,55 +50,41 @@
             android:textStyle="bold"
             android:visibility="gone" />
 
-        <!-- Information Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:layout_marginTop="14dp"
-
             android:orientation="horizontal">
 
-            <!-- Calories -->
             <TextView
                 android:id="@+id/tvCalories"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-
                 android:layout_weight="1"
-
                 android:text="🔥 320 kcal"
                 android:textColor="#4B5563"
                 android:textSize="14sp" />
 
-            <!-- Cooking Time -->
             <TextView
                 android:id="@+id/tvCookingTime"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-
                 android:layout_weight="1"
-
                 android:gravity="end"
-
                 android:text="⏱ 25 min"
                 android:textColor="#4B5563"
                 android:textSize="14sp" />
 
         </LinearLayout>
 
-        <!-- View Recipe Button -->
         <Button
             android:id="@+id/btnViewRecipe"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:layout_marginTop="16dp"
-
             android:text="View Recipe"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
-
             android:backgroundTint="#4CAF50" />
 
     </LinearLayout>

@@ -1,8 +1,8 @@
 package com.example.srpf;
 
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -10,402 +10,271 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CookingActivity extends AppCompatActivity {
 
     private TextView tvCookingRecipeName;
     private TextView tvCookingCalories;
     private TextView tvCookingTime;
-
     private LinearLayout instructionsContainer;
-
     private Button btnFinishCooking;
 
-    private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore firestore;
+    private final ExecutorService apiExecutor =
+            Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_cooking);
 
-        // --------------------------------------------------
-        // Firebase
-        // --------------------------------------------------
+        tvCookingRecipeName = findViewById(R.id.tvCookingRecipeName);
+        tvCookingCalories = findViewById(R.id.tvCookingCalories);
+        tvCookingTime = findViewById(R.id.tvCookingTime);
+        instructionsContainer = findViewById(R.id.instructionsContainer);
+        btnFinishCooking = findViewById(R.id.btnFinishCooking);
 
-        firebaseAuth =
-                FirebaseAuth.getInstance();
+        TextView tvBackCooking = findViewById(R.id.tvBackCooking);
+        tvBackCooking.setOnClickListener(v -> finish());
 
-        firestore =
-                FirebaseFirestore.getInstance();
-
-        // --------------------------------------------------
-        // Find Views
-        // --------------------------------------------------
-
-        tvCookingRecipeName =
-                findViewById(R.id.tvCookingRecipeName);
-
-        tvCookingCalories =
-                findViewById(R.id.tvCookingCalories);
-
-        tvCookingTime =
-                findViewById(R.id.tvCookingTime);
-
-        instructionsContainer =
-                findViewById(R.id.instructionsContainer);
-
-        btnFinishCooking =
-                findViewById(R.id.btnFinishCooking);
-
-        TextView tvBackCooking =
-                findViewById(R.id.tvBackCooking);
-
-        // --------------------------------------------------
-        // Back button
-        // --------------------------------------------------
-
-        tvBackCooking.setOnClickListener(v ->
-                finish()
-        );
-
-        // --------------------------------------------------
-        // Get recipe information
-        // --------------------------------------------------
-
-        String recipeId =
-                getIntent().getStringExtra(
-                        "recipeId"
-                );
-
-        String recipeName =
-                getIntent().getStringExtra(
-                        "recipeName"
-                );
-
-        int calories =
-                getIntent().getIntExtra(
-                        "calories",
-                        0
-                );
-
-        int cookingTime =
-                getIntent().getIntExtra(
-                        "cookingTime",
-                        0
-                );
-
-        // --------------------------------------------------
-        // Display recipe information
-        // --------------------------------------------------
+        String recipeId = getIntent().getStringExtra("recipeId");
+        String recipeName = getIntent().getStringExtra("recipeName");
+        int calories = getIntent().getIntExtra("calories", 0);
+        int cookingTime = getIntent().getIntExtra("cookingTime", 0);
 
         if (recipeName != null) {
-
-            tvCookingRecipeName.setText(
-                    recipeName
-            );
+            tvCookingRecipeName.setText(recipeName);
         }
 
         tvCookingCalories.setText(
-                "🔥 " + calories + " kcal"
+                calories > 0
+                        ? "🔥 " + calories + " kcal"
+                        : "🔥 Calories unavailable"
         );
 
-        if (cookingTime > 0) {
+        tvCookingTime.setText(
+                cookingTime > 0
+                        ? "⏱ " + cookingTime + " min"
+                        : "⏱ Time unavailable"
+        );
 
-            tvCookingTime.setText(
-                    "⏱ " + cookingTime + " min"
-            );
-
-        } else {
-
-            tvCookingTime.setText(
-                    "⏱ Time unavailable"
-            );
-        }
-
-        // --------------------------------------------------
-        // Check Recipe ID
-        // --------------------------------------------------
-
-        if (
-                recipeId == null ||
-                        recipeId.trim().isEmpty()
-        ) {
-
+        if (recipeId == null || recipeId.trim().isEmpty()) {
             Toast.makeText(
                     this,
                     "Recipe information unavailable",
                     Toast.LENGTH_SHORT
             ).show();
-
             return;
         }
 
-        // --------------------------------------------------
-        // Load cooking instructions
-        // --------------------------------------------------
-
         loadInstructions(recipeId);
 
-        // --------------------------------------------------
-        // Finish Cooking
-        // --------------------------------------------------
-
         btnFinishCooking.setOnClickListener(v -> {
-
             Toast.makeText(
                     CookingActivity.this,
                     "Recipe completed! 🎉",
                     Toast.LENGTH_SHORT
             ).show();
-
             finish();
         });
     }
 
-    // ======================================================
-    // LOAD INSTRUCTIONS
-    // ======================================================
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        apiExecutor.shutdownNow();
+    }
 
-    private void loadInstructions(
-            String recipeId
-    ) {
-
-        if (firebaseAuth.getCurrentUser() == null) {
-
-            Toast.makeText(
-                    this,
-                    "Please login again",
-                    Toast.LENGTH_SHORT
-            ).show();
-
+    private void loadInstructions(String recipeId) {
+        if (SpoonacularConfig.API_KEY.startsWith("YOUR_")) {
+            showInstructionMessage(
+                    "Add your Spoonacular API key in CookingActivity.java."
+            );
             return;
         }
 
-        String userId =
-                firebaseAuth
-                        .getCurrentUser()
-                        .getUid();
+        apiExecutor.execute(() -> {
+            HttpURLConnection connection = null;
 
-        firestore
-                .collection("users")
-                .document(userId)
-                .collection("recipes")
-                .document(recipeId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
+            try {
+                URL url = new URL(
+                        SpoonacularConfig.BASE_URL
+                                + "/recipes/"
+                                + recipeId
+                                + "/information?includeNutrition=false"
+                );
 
-                    if (!documentSnapshot.exists()) {
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(15000);
+                connection.setReadTimeout(20000);
+                connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty(
+                        "x-api-key",
+                        SpoonacularConfig.API_KEY
+                );
 
-                        Toast.makeText(
-                                CookingActivity.this,
-                                "Recipe not found",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                int status = connection.getResponseCode();
+                InputStream stream = status >= 200 && status < 300
+                        ? connection.getInputStream()
+                        : connection.getErrorStream();
 
-                        return;
-                    }
+                String response = readStream(stream);
 
-                    List<String> instructions =
-                            (List<String>)
-                                    documentSnapshot.get(
-                                            "instructions"
-                                    );
+                if (status < 200 || status >= 300) {
+                    throw new Exception(
+                            "Spoonacular HTTP " + status
+                    );
+                }
 
-                    instructionsContainer
-                            .removeAllViews();
+                JSONObject recipe = new JSONObject(response);
+                JSONArray analyzedInstructions =
+                        recipe.optJSONArray("analyzedInstructions");
 
-                    // --------------------------------------------------
-                    // No instructions
-                    // --------------------------------------------------
+                if (analyzedInstructions == null
+                        || analyzedInstructions.length() == 0) {
+                    runOnUiThread(() ->
+                            showInstructionMessage(
+                                    "No cooking instructions available."
+                            )
+                    );
+                    return;
+                }
 
-                    if (
-                            instructions == null ||
-                                    instructions.isEmpty()
-                    ) {
+                JSONObject firstInstructionSet =
+                        analyzedInstructions.optJSONObject(0);
 
-                        TextView emptyText =
-                                new TextView(
-                                        CookingActivity.this
-                                );
+                JSONArray steps = firstInstructionSet != null
+                        ? firstInstructionSet.optJSONArray("steps")
+                        : null;
 
-                        emptyText.setText(
-                                "No cooking instructions available."
-                        );
+                if (steps == null || steps.length() == 0) {
+                    runOnUiThread(() ->
+                            showInstructionMessage(
+                                    "No cooking instructions available."
+                            )
+                    );
+                    return;
+                }
 
-                        emptyText.setTextSize(16);
+                runOnUiThread(() -> displayInstructions(steps));
 
-                        emptyText.setTextColor(
-                                getResources().getColor(
-                                        android.R.color.darker_gray
-                                )
-                        );
-
-                        instructionsContainer.addView(
-                                emptyText
-                        );
-
-                        return;
-                    }
-
-                    // --------------------------------------------------
-                    // Display instructions
-                    // --------------------------------------------------
-
-                    for (
-                            int i = 0;
-                            i < instructions.size();
-                            i++
-                    ) {
-
-                        addInstructionStep(
-                                i + 1,
-                                instructions.get(i)
-                        );
-                    }
-
-                })
-                .addOnFailureListener(e -> {
-
-                    Toast.makeText(
-                            CookingActivity.this,
-                            "Unable to load instructions",
-                            Toast.LENGTH_SHORT
-                    ).show();
-                });
+            } catch (Exception e) {
+                runOnUiThread(() ->
+                        showInstructionMessage(
+                                "Unable to load cooking instructions."
+                        )
+                );
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+        });
     }
 
-    // ======================================================
-    // ADD INSTRUCTION STEP
-    // ======================================================
+    private void displayInstructions(JSONArray steps) {
+        instructionsContainer.removeAllViews();
+
+        for (int i = 0; i < steps.length(); i++) {
+            JSONObject step = steps.optJSONObject(i);
+
+            if (step == null) {
+                continue;
+            }
+
+            String instruction = step.optString("step", "").trim();
+
+            if (!instruction.isEmpty()) {
+                addInstructionStep(i + 1, instruction);
+            }
+        }
+    }
 
     private void addInstructionStep(
             int stepNumber,
             String instruction
     ) {
+        LinearLayout stepLayout = new LinearLayout(this);
+        stepLayout.setOrientation(LinearLayout.HORIZONTAL);
+        stepLayout.setGravity(Gravity.CENTER_VERTICAL);
+        stepLayout.setPadding(0, 8, 0, 8);
 
-        LinearLayout stepLayout =
-                new LinearLayout(this);
-
-        stepLayout.setOrientation(
-                LinearLayout.HORIZONTAL
-        );
-
-        stepLayout.setGravity(
-                Gravity.CENTER_VERTICAL
-        );
-
-        stepLayout.setPadding(
-                0,
-                8,
-                0,
-                8
-        );
-
-        // --------------------------------------------------
-        // Step Number
-        // --------------------------------------------------
-
-        TextView numberText =
-                new TextView(this);
-
-        numberText.setText(
-                String.valueOf(stepNumber)
-        );
-
+        TextView numberText = new TextView(this);
+        numberText.setText(String.valueOf(stepNumber));
         numberText.setTextSize(16);
-
-        numberText.setTextColor(
-                getResources().getColor(
-                        android.R.color.white
-                )
-        );
-
-        numberText.setGravity(
-                Gravity.CENTER
-        );
-
-        numberText.setBackgroundColor(
-                android.graphics.Color.rgb(
-                        76,
-                        175,
-                        80
-                )
-        );
-
-        LinearLayout.LayoutParams
-                numberParams =
-                new LinearLayout.LayoutParams(
-                        42,
-                        42
-                );
-
+        numberText.setTextColor(0xFFFFFFFF);
+        numberText.setGravity(Gravity.CENTER);
+        numberText.setBackgroundColor(0xFF4CAF50);
         numberText.setLayoutParams(
-                numberParams
+                new LinearLayout.LayoutParams(42, 42)
         );
 
-        // --------------------------------------------------
-        // Instruction Text
-        // --------------------------------------------------
-
-        TextView instructionText =
-                new TextView(this);
-
+        TextView instructionText = new TextView(this);
         instructionText.setText(
-                instruction
+                Html.fromHtml(
+                        instruction,
+                        Html.FROM_HTML_MODE_LEGACY
+                ).toString()
         );
-
         instructionText.setTextSize(16);
-
-        instructionText.setTextColor(
-                getResources().getColor(
-                        android.R.color.black
-                )
-        );
-
-        instructionText.setPadding(
-                16,
-                4,
-                0,
-                4
-        );
-
-        LinearLayout.LayoutParams
-                instructionParams =
+        instructionText.setTextColor(0xFF000000);
+        instructionText.setPadding(16, 4, 0, 4);
+        instructionText.setLayoutParams(
                 new LinearLayout.LayoutParams(
                         0,
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         1
-                );
-
-        instructionText.setLayoutParams(
-                instructionParams
+                )
         );
 
-        // --------------------------------------------------
-        // Add to step layout
-        // --------------------------------------------------
+        stepLayout.addView(numberText);
+        stepLayout.addView(instructionText);
+        instructionsContainer.addView(stepLayout);
+    }
 
-        stepLayout.addView(
-                numberText
-        );
+    private void showInstructionMessage(String message) {
+        instructionsContainer.removeAllViews();
 
-        stepLayout.addView(
-                instructionText
-        );
+        TextView text = new TextView(this);
+        text.setText(message);
+        text.setTextSize(16);
+        text.setTextColor(0xFF777777);
+        text.setPadding(0, 20, 0, 20);
 
-        // --------------------------------------------------
-        // Add step to container
-        // --------------------------------------------------
+        instructionsContainer.addView(text);
+    }
 
-        instructionsContainer.addView(
-                stepLayout
-        );
+    private String readStream(InputStream stream) throws Exception {
+        if (stream == null) {
+            return "";
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                        stream,
+                        StandardCharsets.UTF_8
+                )
+        )) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
+        }
+
+        return result.toString();
     }
 }

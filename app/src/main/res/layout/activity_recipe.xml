@@ -101,6 +101,7 @@
                     android:textSize="42sp" />
 
                 <TextView
+                    android:id="@+id/tvRecipeEmptyMessage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Recipes will appear here"
